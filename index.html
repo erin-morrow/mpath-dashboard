@@ -88,18 +88,12 @@ margin-top:10px;
 <script>
 
 let tasks=[
-{name:"Sessions completed",done:43,total:60},
-{name:"Complete sessions",done:30,total:60}
+{name:"Sessions completed",done:43,total:60, color:"#0076b3ff"},
+{name:"Complete sessions",done:30,total:60, color:"#e69138ff"}
 ]
 
 if(localStorage.getItem("progressTasks")){
 tasks=JSON.parse(localStorage.getItem("progressTasks"))
-}
-
-function color(v){
-if(v<40) return "#e74c3c"
-if(v<70) return "#f39c12"
-return "#2ecc71"
 }
 
 function draw(){
@@ -113,7 +107,7 @@ html+=`
 
 <b>${t.name}</b>
 
-<div class="bar" style="width:${(t.done/t.total)*100}%;">
+<div class="bar" style="width:${(t.done/t.total)*100}%;background:${t.color}">
   ${t.done} / ${t.total}
 </div>
 
