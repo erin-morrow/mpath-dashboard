@@ -81,7 +81,9 @@ margin-top:10px;
 <h3>Add Task</h3>
 
 <input id="newName" placeholder="Task name">
-<input id="newValue" type="number" placeholder="%" min="0" max="100">
+<input id="newCount" type="number" placeholder="Count" min="0">
+<input id="newTotal" type="number" placeholder="Total" min="1">
+<input id="newColor" type="color" value="#4CAF50" title="Pick a color">
 
 <button onclick="addTask()">Add</button>
 
@@ -163,19 +165,21 @@ save()
 }
 
 function addTask(){
+  let name = document.getElementById("newName").value
+  let count = parseInt(document.getElementById("newCount").value) || 0
+  let total = parseInt(document.getElementById("newTotal").value) || 10
+  let color = document.getElementById("newColor").value || "#4CAF50"
+  
+  if(!name) return
 
-let name=document.getElementById("newName").value
-let val=document.getElementById("newValue").value
+  tasks.push({name:name, count:count, total:total, color:color})
 
-if(!name) return
+  document.getElementById("newName").value=""
+  document.getElementById("newCount").value=""
+  document.getElementById("newTotal").value=""
+  document.getElementById("newColor").value="#4CAF50"
 
-tasks.push({name:name,value:val||0})
-
-document.getElementById("newName").value=""
-document.getElementById("newValue").value=""
-
-save()
-
+  save()
 }
 
 function save(){
