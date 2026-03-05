@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Progress Dashboard</title>
+
+<style>
+
+body{
+font-family: Arial;
+background:#f5f7fb;
+max-width:800px;
+margin:auto;
+padding:40px;
+}
+
+h1{
+margin-bottom:30px;
+}
+
+.card{
+background:white;
+padding:20px;
+margin-bottom:18px;
+border-radius:10px;
+box-shadow:0 2px 6px rgba(0,0,0,0.08);
+}
+
+.bar-bg{
+width:100%;
+background:#eee;
+border-radius:8px;
+overflow:hidden;
+margin-top:8px;
+}
+
+.bar{
+height:28px;
+color:white;
+text-align:center;
+line-height:28px;
+transition:width 0.5s ease;
+}
+
+button{
+padding:8px 14px;
+margin-top:10px;
+margin-right:6px;
+border:none;
+border-radius:6px;
+cursor:pointer;
+background:#4CAF50;
+color:white;
+}
+
+.delete{
+background:#e74c3c;
+}
+
+input{
+padding:6px;
+margin-right:6px;
+}
+
+.editor{
+margin-top:10px;
+}
+
+</style>
+</head>
+
+<body>
+
+<h1>Progress Dashboard</h1>
+
+<div id="dashboard"></div>
+
+<h3>Add Task</h3>
+
+<input id="newName" placeholder="Task name">
+<input id="newValue" type="number" placeholder="%" min="0" max="100">
+
+<button onclick="addTask()">Add</button>
+
+<script>
+
+let tasks=[
+{name:"Marketing Website",value:70},
+{name:"Mobile App",value:45},
+{name:"Backend API",value:20}
+]
+
+if(localStorage.getItem("progressTasks")){
+tasks=JSON.parse(localStorage.getItem("progressTasks"))
+}
+
+function color(v){
+if(v<40) return "#e74c3c"
+if(v<70) return "#f39c12"
+return "#2ecc71"
+}
+
+function draw(){
+
+let html=""
+
+tasks.forEach((t,i)=>{
+
+html+=`
+<div class="card">
+
+<b>${t.name}</b>
+
+<div class="bar-bg">
+<div class="bar" style="width:${t.value}%;background:${color(t.value)}">
+${t.value}%
+</div>
+</div>
+
+<div class="editor">
+<input type="number" min="0" max="100" value="${t.value}" id="v${i}">
+<button onclick="update(${i})">Update</button>
+<button class="delete" onclick="removeTask(${i})">Delete</button>
+</div>
+
+</div>
+`
+
+})
+
+document.getElementById("dashboard").innerHTML=html
+
+}
+
+function update(i){
+
+tasks[i].value=document.getElementById("v"+i).value
+
+save()
+
+}
+
+function removeTask(i){
+
+tasks.splice(i,1)
+
+save()
+
+}
+
+function addTask(){
+
+let name=document.getElementById("newName").value
+let val=document.getElementById("newValue").value
+
+if(!name) return
+
+tasks.push({name:name,value:val||0})
+
+document.getElementById("newName").value=""
+document.getElementById("newValue").value=""
+
+save()
+
+}
+
+function save(){
+
+localStorage.setItem("progressTasks",JSON.stringify(tasks))
+
+draw()
+
+}
+
+draw()
+
+</script>
+
+</body>
+</html>
