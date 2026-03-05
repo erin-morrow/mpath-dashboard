@@ -88,8 +88,8 @@ margin-top:10px;
 <script>
 
 let tasks=[
-{name:"Sessions completed",done:43,total:60, color:"#0076b3ff"},
-{name:"Complete sessions",done:30,total:60, color:"#e69138ff"}
+{name:"Sessions completed",count:43,total:60, color:"#0076b3ff"},
+{name:"Complete sessions",count:30,total:60, color:"#e69138ff"}
 ]
 
 if(localStorage.getItem("progressTasks")){
@@ -102,22 +102,36 @@ let html=""
 
 tasks.forEach((t,i)=>{
 
+if(i === 0){
+  html += `
+    <div class="card">
+      <b>${t.name}</b>
+      <div style="font-size:24px; font-weight:bold; margin-top:8px; color:${t.color}">
+        ${t.count}
+      </div>
+      <div class="editor">
+        Count: <input type="number" min="0" value="${t.count}" id="count${i}">
+        <button onclick="update(${i})">Update</button>
+        <button class="delete" onclick="removeTask(${i})">Delete</button>
+      </div>
+    </div>
+  `;
+} else {
+  // existing bar code for other tasks
+}
+
 html+=`
 <div class="card">
 
 <b>${t.name}</b>
 
-<div class="bar" style="width:${(t.done/t.total)*100}%;background:${t.color}">
-  ${t.done} / ${t.total}
+<div class="bar" style="width:${(t.count/t.total)*100}%;background:${t.color}">
+  ${t.count} / ${t.total}
 </div>
 
 <div class="editor">
-Done:
-<input type="number" min="0" value="${t.done}" id="done${i}">
-
-Total:
-<input type="number" min="1" value="${t.total}" id="total${i}">
-
+Count:
+<input type="number" min="0" value="${t.count}" id="count${i}">
 <button onclick="update(${i})">Update</button>
 <button class="delete" onclick="removeTask(${i})">Delete</button>
 </div>
@@ -133,7 +147,7 @@ document.getElementById("dashboard").innerHTML=html
 
 function update(i){
 
-tasks[i].done = document.getElementById("done"+i).value
+tasks[i].count = document.getElementById("count"+i).value
 tasks[i].total = document.getElementById("total"+i).value
 
 save()
