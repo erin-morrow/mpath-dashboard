@@ -101,7 +101,7 @@ input{
 <button onclick="addTask()">Add</button>
 
 <script>
-// Default tasks for first load
+// Default tasks
 let defaultTasks=[
   {name:"Sessions completed", count:43, color:"#0076b3ff"},
   {name:"Scan issues", countData:{squeeze:3, late:2, metal:1, other:2}, color:"#e69138ff"},
@@ -114,10 +114,11 @@ let defaultTasks=[
   {name:"Free recall transcript processing completed", count:0, color:"#0076b3ff", people:[{name:"Alex", count:12},{name:"Sam", count:9},{name:"Jordan", count:6}]}
 ];
 
-// Load from localStorage or use defaults
+// Safe localStorage load
 let tasks;
 try{
-  tasks = JSON.parse(localStorage.getItem("progressTasks")) || defaultTasks;
+  tasks = JSON.parse(localStorage.getItem("progressTasks"));
+  if (!tasks || !tasks.length) tasks = defaultTasks;
 }catch(e){
   tasks = defaultTasks;
 }
@@ -125,8 +126,7 @@ try{
 function draw(){
   let html="";
   tasks.forEach((t,i)=>{
-    // First row: 0-3
-    if(i<4){
+    if(i<4){ // Top row small cards
       if(t.name==="Sessions completed" || t.name==="Complete sessions"){
         html += `<div class="card small">
           <b>${t.name}</b>
@@ -137,7 +137,6 @@ function draw(){
             Count: <input type="number" min="0" value="${t.count||0}" id="count${i}">
             ${t.total?`Total: <input type="number" min="1" value="${t.total}" id="total${i}">`:""}
             <button onclick="update(${i})">Update</button>
-            <button class="delete" onclick="removeTask(${i})">Delete</button>
           </div>
         </div>`;
       } else if(t.name==="Scan issues"){
@@ -165,7 +164,6 @@ function draw(){
         <div class="editor">
           Count: <input type="number" min="0" value="${t.count||0}" id="count${i}">
           <button onclick="update(${i})">Update</button>
-          <button class="delete" onclick="removeTask(${i})">Delete</button>
         </div>`;
       if(t.total!==undefined){
         html += `<div class="bar-bg">
@@ -185,8 +183,8 @@ function draw(){
   document.getElementById("dashboard").innerHTML = html;
 }
 
-// Functions
-function update(i){ tasks[i].count = parseInt(document.getElementById("count"+i).value)||0; if(tasks[i].total!==undefined){ tasks[i].total = parseInt(document.getElementById("total"+i).value)||1; } save(); }
+// Update functions
+function update(i){ tasks[i].count=parseInt(document.getElementById("count"+i).value)||0; if(tasks[i].total!==undefined){ tasks[i].total=parseInt(document.getElementById("total"+i).value)||1;} save(); }
 function updateMotion(i){ tasks[i].countData.fd=parseInt(document.getElementById("fd"+i).value)||0; tasks[i].countData.outliers=parseInt(document.getElementById("outliers"+i).value)||0; save(); }
 function updateScan(i){ tasks[i].countData.squeeze=parseInt(document.getElementById("squeeze"+i).value)||0; tasks[i].countData.late=parseInt(document.getElementById("late"+i).value)||0; tasks[i].countData.metal=parseInt(document.getElementById("metal"+i).value)||0; tasks[i].countData.other=parseInt(document.getElementById("other"+i).value)||0; save(); }
 function removeTask(i){ tasks.splice(i,1); save(); }
@@ -202,6 +200,7 @@ function addTask(){
   document.getElementById("newName").value=""; document.getElementById("newCount").value=""; document.getElementById("newTotal").value=""; document.getElementById("newColor").value="#4CAF50"; 
   save(); 
 }
+
 // People functions
 function updatePerson(i,pi){ tasks[i].people[pi].count=parseInt(document.getElementById(`person${i}_${pi}`).value)||0; save(); }
 function removePerson(i,pi){ tasks[i].people.splice(pi,1); save(); }
@@ -214,8 +213,8 @@ function addPerson(i){
   document.getElementById(`newPersonCount${i}`).value=""; 
   save(); 
 }
-function save(){ localStorage.setItem("progressTasks",JSON.stringify(tasks)); draw(); }
 
+function save(){ localStorage.setItem("progressTasks",JSON.stringify(tasks)); draw(); }
 draw();
 </script>
 
