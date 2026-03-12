@@ -5,69 +5,84 @@
 <title>M-PATH Study Dashboard</title>
 
 <style>
-
 body{
-font-family: Arial;
-background:white;
-max-width:800px;
-margin:auto;
-padding:40px;
+  font-family: Arial;
+  background:white;
+  max-width: 1400px;
+  margin:auto;
+  padding:40px;
 }
 
 h1{
-margin-bottom:30px;
-text-align:center;
-font-weight:600;
+  margin-bottom:30px;
+  text-align:center;
+  font-weight:600;
 }
 
 .card{
-background:#f5f7fb;
-padding:20px;
-margin-bottom:18px;
-border-radius:10px;
-box-shadow:0 2px 6px rgba(0,0,0,0.08);
+  background:#f5f7fb;
+  padding:20px;
+  margin-bottom:18px;
+  border-radius:10px;
+  box-shadow:0 2px 6px rgba(0,0,0,0.08);
 }
 
 .bar-bg{
-width:100%;
-background:#eee;
-border-radius:8px;
-overflow:hidden;
-margin-top:8px;
+  width:100%;
+  background:#eee;
+  border-radius:8px;
+  overflow:hidden;
+  margin-top:8px;
 }
 
 .bar{
-height:28px;
-color:white;
-text-align:center;
-line-height:28px;
-transition:width 0.5s ease;
+  height:28px;
+  color:white;
+  text-align:center;
+  line-height:28px;
+  transition:width 0.5s ease;
 }
 
 button{
-padding:8px 14px;
-margin-top:10px;
-margin-right:6px;
-border:none;
-border-radius:6px;
-cursor:pointer;
-background:#4CAF50;
-color:white;
+  padding:8px 14px;
+  margin-top:10px;
+  margin-right:6px;
+  border:none;
+  border-radius:6px;
+  cursor:pointer;
+  background:#4CAF50;
+  color:white;
 }
 
 .delete{
-background:#e74c3c;
+  background:#e74c3c;
 }
 
 input{
-padding:6px;
-margin-right:6px;
+  padding:6px;
+  margin-right:6px;
 }
 
 .editor{
-margin-top:10px;
+  margin-top:10px;
 }
 
+#dashboard{
+  display:flex;
+  gap:18px;
+  align-items:flex-start;
+  flex-wrap: wrap;
+  justify-content:flex-start;
+}
+
+.card.small{
+  width:180px;
+  flex-shrink:0;
+}
+
+.card.large{
+  flex:1;
+}
 </style>
 </head>
 
@@ -79,119 +94,165 @@ margin-top:10px;
 <div id="dashboard"></div>
 
 <h3>Add Task</h3>
-
 <input id="newName" placeholder="Task name">
 <input id="newCount" type="number" placeholder="Count" min="0">
 <input id="newTotal" type="number" placeholder="Total" min="1">
 <input id="newColor" type="color" value="#4CAF50" title="Pick a color">
-
 <button onclick="addTask()">Add</button>
 
 <script>
-
 let tasks=[
-{name:"Sessions completed",count:43,total:60, color:"#0076b3ff"},
-{name:"Complete sessions",count:30,total:60, color:"#e69138ff"}
-]
+  {name:"Sessions completed", count:43, color:"#0076b3ff"},
+  {name:"Scan issues", countData:{squeeze:3, late:2, metal:1, other:2}, color:"#e69138ff"},
+  {name:"Participants with motion concerns", countData:{fd:12, outliers:7}, color:"#4caf50ff"},
+  {name:"Usable participants", count:30, total:60, color:"#f39c12ff"},
+  {name:"fMRIPrep run", count:0, color:"#0076b3ff", people:[{name:"Alex", count:12},{name:"Sam", count:9},{name:"Jordan", count:6}]},
+  {name:"Preprocessing with at least 2 QCs completed", count:0, color:"#e69138ff", people:[{name:"Alex", count:12},{name:"Sam", count:9},{name:"Jordan", count:6}]},
+  {name:"BET completed", count:0, color:"#0076b3ff", people:[{name:"Alex", count:12},{name:"Sam", count:9},{name:"Jordan", count:6}]},
+  {name:"Neuromelanin with at least 2 raters completed", count:0, color:"#e69138ff", people:[{name:"Alex", count:12},{name:"Sam", count:9},{name:"Jordan", count:6}]},
+  {name:"Free recall transcript processing completed", count:0, color:"#0076b3ff", people:[{name:"Alex", count:12},{name:"Sam", count:9},{name:"Jordan", count:6}]}
+];
 
 if(localStorage.getItem("progressTasks")){
-tasks=JSON.parse(localStorage.getItem("progressTasks"))
+  tasks=JSON.parse(localStorage.getItem("progressTasks"));
 }
 
 function draw(){
-
-let html=""
-
-tasks.forEach((t,i)=>{
-
-if(i === 0){
-  html += `
-    <div class="card">
-      <b>${t.name}</b>
-      <div style="font-size:24px; font-weight:bold; margin-top:8px; color:${t.color}">
-        ${t.count}
-      </div>
-      <div class="editor">
-        Count: <input type="number" min="0" value="${t.count}" id="count${i}">
-        <button onclick="update(${i})">Update</button>
-        <button class="delete" onclick="removeTask(${i})">Delete</button>
-      </div>
-    </div>
-  `;
-} else {
-  // existing bar code for other tasks
-}
-
-html+=`
-<div class="card">
-
-<b>${t.name}</b>
-
-<div class="bar" style="width:${(t.count/t.total)*100}%;background:${t.color}">
-  ${t.count} / ${t.total}
-</div>
-
-<div class="editor">
-Count:
-<input type="number" min="0" value="${t.count}" id="count${i}">
-<button onclick="update(${i})">Update</button>
-<button class="delete" onclick="removeTask(${i})">Delete</button>
-</div>
-
-</div>
-`
-
-})
-
-document.getElementById("dashboard").innerHTML=html
-
+  let html="";
+  tasks.forEach((t,i)=>{
+    if(i<4){
+      if(t.name==="Sessions completed" || t.name==="Usable participants"){
+        html += `<div class="card small">
+          <b>${t.name}</b>
+          <div style="font-size:24px; font-weight:bold; margin-top:8px; color:${t.color}">${t.count || 0}${t.total?` / ${t.total}`:""}</div>
+          <div class="editor">
+            Count: <input type="number" min="0" value="${t.count || 0}" id="count${i}">
+            ${t.total?`Total: <input type="number" min="1" value="${t.total}" id="total${i}">`:""}
+            <button onclick="update(${i})">Update</button>
+            <button class="delete" onclick="removeTask(${i})">Delete</button>
+          </div>
+        </div>`;
+      } 
+      else if(t.name==="Scan issues"){
+        html += `<div class="card small">
+          <b>${t.name}</b>
+          <div class="editor">
+            Squeeze ball: <input type="number" min="0" value="${t.countData.squeeze || 0}" id="squeeze${i}"><button onclick="updateScan(${i})">Update</button><br>
+            Late to session: <input type="number" min="0" value="${t.countData.late || 0}" id="late${i}"><button onclick="updateScan(${i})">Update</button><br>
+            Metal issue: <input type="number" min="0" value="${t.countData.metal || 0}" id="metal${i}"><button onclick="updateScan(${i})">Update</button><br>
+            Other: <input type="number" min="0" value="${t.countData.other || 0}" id="other${i}"><button onclick="updateScan(${i})">Update</button>
+          </div>
+        </div>`;
+      }
+      else if(t.name==="Participants with motion concerns"){
+        html += `<div class="card small">
+          <b>${t.name}</b>
+          <div class="editor">
+            At least one run with mean FD>0.5: <input type="number" min="0" value="${t.countData.fd || 0}" id="fd${i}"><button onclick="updateMotion(${i})">Update</button><br>
+            At least one run with motion outliers>2 SD: <input type="number" min="0" value="${t.countData.outliers || 0}" id="outliers${i}"><button onclick="updateMotion(${i})">Update</button>
+          </div>
+        </div>`;
+      }
+    } 
+    else {
+      html += `<div class="card large">
+        <b>${t.name}</b>`;
+      if(t.total!==undefined){
+        html += `<div class="bar-bg">
+          <div class="bar" style="width:${(t.count/t.total)*100}%; background:${t.color}">
+            ${t.count} / ${t.total}
+          </div>
+        </div>
+        <div class="editor">
+          Count: <input type="number" min="0" value="${t.count}" id="count${i}">
+          Total: <input type="number" min="1" value="${t.total}" id="total${i}">
+          <button onclick="update(${i})">Update</button>
+          <button class="delete" onclick="removeTask(${i})">Delete</button>
+        </div>`;
+      } else {
+        html += `<div class="editor">
+          Count: <input type="number" min="0" value="${t.count}" id="count${i}">
+          <button onclick="update(${i})">Update</button>
+          <button class="delete" onclick="removeTask(${i})">Delete</button>
+        </div>`;
+      }
+      if(t.people){
+        html += `<div class="editor">People working on this task<br>`;
+        t.people.forEach((p,pi)=>{
+          html += `${p.name} <input type="number" min="0" value="${p.count}" id="person${i}_${pi}"><button onclick="updatePerson(${i},${pi})">Update</button><button class="delete" onclick="removePerson(${i},${pi})">Delete</button><br>`;
+        });
+        html += `Add person: <input id="newPersonName${i}" placeholder="Name"> <input id="newPersonCount${i}" type="number" min="0" placeholder="Count"> <button onclick="addPerson(${i})">Add</button></div>`;
+      }
+      html += `</div>`;
+    }
+  });
+  document.getElementById("dashboard").innerHTML=html;
 }
 
 function update(i){
-
-tasks[i].count = document.getElementById("count"+i).value
-tasks[i].total = document.getElementById("total"+i).value
-
-save()
-
+  tasks[i].count = parseInt(document.getElementById("count"+i).value)||0;
+  if(tasks[i].total!==undefined){
+    tasks[i].total = parseInt(document.getElementById("total"+i).value)||1;
+  }
+  save();
 }
 
-function removeTask(i){
-
-tasks.splice(i,1)
-
-save()
-
+function updateMotion(i){
+  tasks[i].countData.fd = parseInt(document.getElementById("fd"+i).value)||0;
+  tasks[i].countData.outliers = parseInt(document.getElementById("outliers"+i).value)||0;
+  save();
 }
 
+function updateScan(i){
+  tasks[i].countData.squeeze = parseInt(document.getElementById("squeeze"+i).value)||0;
+  tasks[i].countData.late = parseInt(document.getElementById("late"+i).value)||0;
+  tasks[i].countData.metal = parseInt(document.getElementById("metal"+i).value)||0;
+  tasks[i].countData.other = parseInt(document.getElementById("other"+i).value)||0;
+  save();
+}
+
+function removeTask(i){ tasks.splice(i,1); save(); }
 function addTask(){
-  let name = document.getElementById("newName").value
-  let count = parseInt(document.getElementById("newCount").value) || 0
-  let total = parseInt(document.getElementById("newTotal").value) || 10
-  let color = document.getElementById("newColor").value || "#4CAF50"
-  
-  if(!name) return
+  let name = document.getElementById("newName").value;
+  let count = parseInt(document.getElementById("newCount").value)||0;
+  let total = parseInt(document.getElementById("newTotal").value)||10;
+  let color = document.getElementById("newColor").value||"#4CAF50";
+  if(!name) return;
+  let newTask = {name:name,count:count,color:color};
+  if(name==="Usable participants"){ newTask.total=total; }
+  tasks.push(newTask);
+  document.getElementById("newName").value="";
+  document.getElementById("newCount").value="";
+  document.getElementById("newTotal").value="";
+  document.getElementById("newColor").value="#4CAF50";
+  save();
+}
 
-  tasks.push({name:name, count:count, total:total, color:color})
-
-  document.getElementById("newName").value=""
-  document.getElementById("newCount").value=""
-  document.getElementById("newTotal").value=""
-  document.getElementById("newColor").value="#4CAF50"
-
-  save()
+// People functions
+function updatePerson(i,pi){
+  tasks[i].people[pi].count = parseInt(document.getElementById(`person${i}_${pi}`).value)||0;
+  save();
+}
+function removePerson(i,pi){
+  tasks[i].people.splice(pi,1);
+  save();
+}
+function addPerson(i){
+  let name = document.getElementById(`newPersonName${i}`).value;
+  let count = parseInt(document.getElementById(`newPersonCount${i}`).value)||0;
+  if(!name) return;
+  tasks[i].people.push({name:name,count:count});
+  document.getElementById(`newPersonName${i}`).value="";
+  document.getElementById(`newPersonCount${i}`).value="";
+  save();
 }
 
 function save(){
-
-localStorage.setItem("progressTasks",JSON.stringify(tasks))
-
-draw()
-
+  localStorage.setItem("progressTasks",JSON.stringify(tasks));
+  draw();
 }
 
-draw()
-
+draw();
 </script>
 
 </body>
